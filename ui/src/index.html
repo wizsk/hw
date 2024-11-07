@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en,ar">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Search</title>
+        {{template "style.html"}}
+    </head>
+    <body>
+        <h1>type please</h1>
+        <form action="/r" method="get">
+            <label for="w">Word:</label>
+            <input type="text" id="w" name="w" required />
+            <br /><br />
+            <button type="submit">Root</button>
+        </form>
+        <br />
+        <form action="/t" method="get">
+            <label for="w">Word:</label>
+            <input type="text" id="w" name="w" required />
+            <br /><br />
+            <button type="submit">Text</button>
+        </form>
+    </body>
+</html>

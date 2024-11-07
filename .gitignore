@@ -7,4 +7,6 @@ hw
 *.so
 *.dylib
 
-*tmp*
+tmp.*
+tmp
+node_modules

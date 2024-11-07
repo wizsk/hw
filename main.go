@@ -1,27 +1,25 @@
 package main
 
 import (
-	"fmt"
-	"os"
+	"io"
+	"log"
+	"net/http"
+	"text/template"
 
 	"zombiezen.com/go/sqlite"
-	"zombiezen.com/go/sqlite/sqlitex"
 )
 
 const (
-	dbPath = "assets/hw.db"
+	dbPath        = "assets/hw.db"
+	indexPageFile = "index.html"
+	resPageFile   = "res.html"
+	debug         = true
 )
 
-type Entry struct {
-	Id          int64  `json:"id"`
-	Pid         int64  `json:"pid"`
-	IsRoot      bool   `json:"is_root"`
-	IsHighlight bool   `json:"is_highlight"`
-	Word        string `json:"word"`
-	Def         string `json:"def"`
+type ResData struct {
+	Word    string
+	Entries Entries
 }
-
-type Entries []Entry
 
 func main() {
 	conn, err := sqlite.OpenConn(dbPath, sqlite.OpenReadOnly)
@@ -29,44 +27,62 @@ func main() {
 		panic(err)
 	}
 	defer conn.Close()
-	fmt.Println(searchByRoot(conn, os.Args[1]))
-}
 
-func searchByTxt(conn *sqlite.Conn, str string) (Entries, error) {
-	e := Entries{}
-	const q = `SELECT word, REPLACE(def, ?, '<mark>' || '$word' || '</mark>')
- 	FROM dict where def like %?% limit 50`
-	return e, sqlitex.Execute(conn, q, &sqlitex.ExecOptions{
-		Args: []any{str, str},
-		ResultFunc: func(stmt *sqlite.Stmt) error {
-			e = append(e, getRowData(stmt))
-			return nil
-		},
-	})
-}
-
-func searchByRoot(conn *sqlite.Conn, root string) (Entries, error) {
-	e := Entries{}
-	const q = `SELECT id, word, CASE word when ? then 1 else 0 end as highlight, def, is_root
-		FROM dict WHERE pid IN (SELECT pid FROM dict WHERE word = ?) ORDER BY id;`
-
-	return e, sqlitex.Execute(conn, q, &sqlitex.ExecOptions{
-		Args: []any{root, root},
-
-		ResultFunc: func(stmt *sqlite.Stmt) error {
-			e = append(e, getRowData(stmt))
-			return nil
-		},
-	})
-}
-
-func getRowData(stmt *sqlite.Stmt) Entry {
-	return Entry{
-		Id:          stmt.GetInt64("id"),
-		Pid:         stmt.GetInt64("pid"),
-		IsRoot:      stmt.GetBool("is_root"),
-		IsHighlight: stmt.GetBool("highlight"),
-		Word:        stmt.GetText("word"),
-		Def:         stmt.GetText("def"),
+	var tmpl templateWraper
+	if debug {
+		tmpl = &tmplW{}
+	} else {
+		tmpl, err = newTmpl()
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
+
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		err := tmpl.ExecuteTemplate(w, indexPageFile, nil)
+		if err != nil {
+			log.Fatal(err)
+		}
+	})
+
+	http.HandleFunc("/r", func(wt http.ResponseWriter, r *http.Request) {
+		w := r.FormValue("w")
+		e, _ := searchByRoot(conn, w)
+		d := ResData{w, e}
+		if err := tmpl.ExecuteTemplate(wt, resPageFile, &d); err != nil {
+			log.Fatal(err)
+		}
+	})
+
+	http.HandleFunc("/t", func(wt http.ResponseWriter, r *http.Request) {
+		w := r.FormValue("w")
+		e, err := searchByTxt(conn, w)
+		if err != nil {
+			log.Fatal(err)
+		}
+		d := ResData{w, e}
+		if err := tmpl.ExecuteTemplate(wt, resPageFile, &d); err != nil {
+			log.Fatal(err)
+		}
+	})
+
+	panic(http.ListenAndServe(":8001", nil))
+}
+
+type templateWraper interface {
+	ExecuteTemplate(wr io.Writer, name string, data any) error
+}
+
+type tmplW struct{}
+
+func (tp *tmplW) ExecuteTemplate(w io.Writer, name string, data any) error {
+	t, err := newTmpl()
+	if err != nil {
+		return err
+	}
+	return t.ExecuteTemplate(w, name, data)
+}
+
+func newTmpl() (templateWraper, error) {
+	return template.ParseGlob("ui/src/*")
 }
