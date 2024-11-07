@@ -30,3 +30,25 @@ function loadPage(href) {
   document.body.append(a);
   a.click();
 }
+
+// nav hide
+let lastScrollTop = 0;
+const navbar = document.getElementById("navbar");
+
+window.addEventListener("scroll", function () {
+  let currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+
+  if (currentScroll > lastScrollTop) {
+    // Scroll Down - Hide Navbar
+    if (this.window.innerWidth <= 640) {
+      navbar.style.transform = "translateY(100%)";
+    } else {
+      navbar.style.transform = "translateY(-100%)";
+    }
+  } else {
+    // Scroll Up - Show Navbar
+    navbar.style.transform = "translateY(0)";
+  }
+
+  lastScrollTop = currentScroll <= 0 ? 0 : currentScroll; // Prevent negative scroll
+});

@@ -8,7 +8,8 @@
     </head>
     <body class="text-xl">
         <nav
-            class="bg-gray-500 py-4 px-4 fixed bottom-0 left-0 sm:bottom-auto sm:top-0 w-full flex gap-1 items-center justify-center"
+            id="navbar"
+            class="transform transition-transform duration-300 ease-in-out bg-gray-500 py-4 px-4 fixed bottom-0 left-0 sm:bottom-auto sm:top-0 w-full flex gap-1 items-center justify-center"
         >
             <input
                 type="text"
@@ -36,7 +37,7 @@
         </nav>
 
         {{if .IsRes}}
-        <main class="sm:pt-24 pb-24 mx-4">{{template "res.html" .}}</main>
+        <main class="pt-4 sm:pt-24 pb-24 mx-4">{{template "res.html" .}}</main>
         {{end}}
 
         <script>
