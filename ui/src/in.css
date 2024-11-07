@@ -1,3 +1,18 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@font-face {
+    font-family: "Amiri";
+    src: url("/assets/pub/Amiri-Regular.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+}
+
+body {
+    font-family: "amiri";
+}
+
+.direction-rtl {
+    direction: rtl;
+}

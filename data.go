@@ -18,7 +18,7 @@ type Entries []Entry
 
 func searchByTxt(conn *sqlite.Conn, str string) (Entries, error) {
 	e := Entries{}
-	const q = `SELECT word, is_root, REPLACE(def, ?, '<span style="background: gray;">' || ? || '</span>') AS def
+	const q = `SELECT word, is_root, REPLACE(def, ?, '<span style="background: yellow;">' || ? || '</span>') AS def
  	FROM dict WHERE INSTR(def, ?) > 0 LIMIT 50`
 
 	return e, sqlitex.Execute(conn, q, &sqlitex.ExecOptions{

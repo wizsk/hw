@@ -1,4 +1,4 @@
-<!-- type Entry struct {
+<!-- <!-- type Entry struct {
     Id          int64  `json:"id"`
     Pid         int64  `json:"pid"`
     IsRoot      bool   `json:"is_root"`
@@ -7,26 +7,18 @@
     Def         string `json:"def"`
 } -->
 
-<!doctype html>
-<html lang="en,ar">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Res</title>
-        {{template "style.html"}}
-    </head>
-    <body class="bg-zinc-300">
-        <h1>Resutls for: {{.Word}}</h1>
-        {{range .Entries}}
-        <div class="">
-            <p
-                style="{{if .IsRoot}}font-weight: bold;{{end}}{{if .IsHighlight}}background: red;{{end}}"
-            >
-                {{.Def}}
-            </p>
-        </div>
-        {{else}}
-        <div>No resusts found</div>
-        {{end}}
-    </body>
-</html>
+<!-- <h1 class="text-center text-4xl py-8 bg-red-400">{{.Word}}</h1> -->
+<div class="divide-y divide-slate-300">
+    {{range .Entries}}
+    <div class="px-2 py-4">
+        <!-- <div
+        style="{{if .IsRoot}}font-weight: bold;{{end}}{{if .IsHighlight}}background: red;{{end}}"
+    > -->
+        {{.Def}}
+        <!-- </div> -->
+    </div>
+    <!-- <div class="border-b border-gray-900 border-opacity-70 px-1 my-8"></div> -->
+    {{else}}
+    <div class="">No resusts found</div>
+    {{end}}
+</div>

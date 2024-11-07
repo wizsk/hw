@@ -6,20 +6,41 @@
         <title>Search</title>
         {{template "style.html"}}
     </head>
-    <body>
-        <h1>type please</h1>
-        <form action="/r" method="get">
-            <label for="w">Word:</label>
-            <input type="text" id="w" name="w" required />
-            <br /><br />
-            <button type="submit">Root</button>
-        </form>
-        <br />
-        <form action="/t" method="get">
-            <label for="w">Word:</label>
-            <input type="text" id="w" name="w" required />
-            <br /><br />
-            <button type="submit">Text</button>
-        </form>
+    <body class="text-xl">
+        <nav
+            class="bg-gray-500 py-4 px-4 fixed bottom-0 left-0 sm:bottom-auto sm:top-0 w-full flex gap-1 items-center justify-center"
+        >
+            <input
+                type="text"
+                id="input"
+                name="input"
+                placeholder="اكتب هنا"
+                class="w-[50vw] text-right direction-rtl p-2 bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                value="{{.PreInVal}}"
+                required
+            />
+            <button
+                title="Search by root"
+                onclick="setSubmiter('root')"
+                class="rounded border p-2 text-white border-blue-700 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300"
+            >
+                ROOT
+            </button>
+            <button
+                title="Scan intire dictionary"
+                class="rounded border p-2 text-white border-blue-700 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300"
+                onclick="setSubmiter('text')"
+            >
+                TEXT
+            </button>
+        </nav>
+
+        {{if .IsRes}}
+        <main class="sm:pt-24 pb-24 mx-4">{{template "res.html" .}}</main>
+        {{end}}
+
+        <script>
+            // {{template "main.js"}}
+        </script>
     </body>
 </html>

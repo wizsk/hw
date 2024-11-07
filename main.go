@@ -1,6 +1,7 @@
 package main
 
 import (
+	"embed"
 	"io"
 	"log"
 	"net/http"
@@ -12,13 +13,21 @@ import (
 const (
 	dbPath        = "assets/hw.db"
 	indexPageFile = "index.html"
-	resPageFile   = "res.html"
-	debug         = true
+	// resPageFile   = "res.html"
+	resPageFile = "index.html"
+	debug       = true
+)
+
+var (
+	//go:embed assets/pub/*
+	pubDir embed.FS
 )
 
 type ResData struct {
-	Word    string
-	Entries Entries
+	Word     string
+	Entries  Entries
+	IsRes    bool   // is result page
+	PreInVal string // previous input value
 }
 
 func main() {
@@ -39,7 +48,7 @@ func main() {
 	}
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		err := tmpl.ExecuteTemplate(w, indexPageFile, nil)
+		err := tmpl.ExecuteTemplate(w, indexPageFile, ResData{IsRes: false})
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -48,7 +57,7 @@ func main() {
 	http.HandleFunc("/r", func(wt http.ResponseWriter, r *http.Request) {
 		w := r.FormValue("w")
 		e, _ := searchByRoot(conn, w)
-		d := ResData{w, e}
+		d := ResData{w, e, true, w}
 		if err := tmpl.ExecuteTemplate(wt, resPageFile, &d); err != nil {
 			log.Fatal(err)
 		}
@@ -60,12 +69,13 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		d := ResData{w, e}
+		d := ResData{w, e, true, w}
 		if err := tmpl.ExecuteTemplate(wt, resPageFile, &d); err != nil {
 			log.Fatal(err)
 		}
 	})
 
+	http.Handle("/assets/", http.FileServerFS(pubDir))
 	panic(http.ListenAndServe(":8001", nil))
 }
 
