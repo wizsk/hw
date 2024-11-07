@@ -5,22 +5,30 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 	"text/template"
 
 	"zombiezen.com/go/sqlite"
 )
 
 const (
-	dbPath        = "assets/hw.db"
+	dbName        = "hw.db"
+	dbPath        = "assets/" + dbName
 	indexPageFile = "index.html"
 	// resPageFile   = "res.html"
 	resPageFile = "index.html"
-	debug       = true
+	debug       = !true
 )
 
 var (
 	//go:embed assets/pub/*
 	pubDir embed.FS
+	//go:embed assets/hw.db
+	dataBase embed.FS
+
+	//go:embed ui/src/*
+	uiTmpls embed.FS
 )
 
 type ResData struct {
@@ -31,7 +39,24 @@ type ResData struct {
 }
 
 func main() {
-	conn, err := sqlite.OpenConn(dbPath, sqlite.OpenReadOnly)
+	dbTmpPath := filepath.Join(os.TempDir(), dbName)
+	{
+		d, err := dataBase.Open(dbPath)
+		if err != nil {
+			panic(err)
+		}
+		dt, err := os.Create(dbTmpPath)
+		if err != nil {
+			panic(err)
+		}
+		if _, err := io.Copy(dt, d); err != nil {
+			panic(err)
+		}
+		d.Close()
+		dt.Close()
+	}
+
+	conn, err := sqlite.OpenConn(dbTmpPath, sqlite.OpenReadOnly)
 	if err != nil {
 		panic(err)
 	}
@@ -41,7 +66,7 @@ func main() {
 	if debug {
 		tmpl = &tmplW{}
 	} else {
-		tmpl, err = newTmpl()
+		tmpl, err = openEmbdedTmpl()
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -86,13 +111,14 @@ type templateWraper interface {
 type tmplW struct{}
 
 func (tp *tmplW) ExecuteTemplate(w io.Writer, name string, data any) error {
-	t, err := newTmpl()
+	t, err := template.ParseGlob("ui/src/*")
 	if err != nil {
 		return err
 	}
 	return t.ExecuteTemplate(w, name, data)
 }
 
-func newTmpl() (templateWraper, error) {
-	return template.ParseGlob("ui/src/*")
+func openEmbdedTmpl() (templateWraper, error) {
+	return template.ParseFS(uiTmpls, "ui/src/*")
+
 }
