@@ -2,12 +2,17 @@ package main
 
 import (
 	"embed"
+	"fmt"
 	"io"
 	"log"
+	"net"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"runtime"
 	"text/template"
+	"time"
 
 	"zombiezen.com/go/sqlite"
 )
@@ -18,7 +23,7 @@ const (
 	indexPageFile = "index.html"
 	// resPageFile   = "res.html"
 	resPageFile = "index.html"
-	debug       = true
+	debug       = !true
 )
 
 var (
@@ -99,9 +104,82 @@ func main() {
 			log.Fatal(err)
 		}
 	})
-
 	http.Handle("/assets/", http.FileServerFS(pubDir))
-	panic(http.ListenAndServe(":8001", nil))
+
+	port := "8001"
+	if len(os.Args) == 2 {
+		port = os.Args[1]
+	}
+
+	fmt.Println("Running:")
+	fmt.Println("Localy: http://localhost:" + port)
+
+	if runtime.GOOS == "linux" {
+		fmt.Printf("Internet?: http://%s:%s\n", localIp(), port)
+	} else {
+		fmt.Println("Find your ip please :D")
+	}
+
+	run := make(chan bool)
+
+	go func(c chan<- bool) {
+		if err = http.ListenAndServe(":"+port, nil); err != nil {
+			fmt.Println("encountered err:", err)
+			fmt.Printf("It may be that the port %q is already used (defaut: 8001)\n", port)
+			fmt.Println("You can specify port number by progname follwed by the port nubmer")
+			fmt.Println("Example: `hw 8080`")
+			c <- false
+		}
+	}(run)
+
+	fmt.Println("Holdon... opening on your brwoser")
+
+	go func(c chan<- bool) {
+		time.Sleep(2 * time.Second)
+		c <- true
+	}(run)
+
+	runn := <-run
+	if !runn {
+		return
+	}
+
+	openBrower("http://localhost:" + port)
+	select {}
+}
+
+func openBrower(url string) {
+	var cmd *exec.Cmd
+	switch runtime.GOOS {
+	case "windows":
+		cmd = exec.Command("cmd", "/c", "start", url)
+	case "linux":
+		cmd = exec.Command("xdg-open", url)
+	case "darwin":
+		cmd = exec.Command("open", url)
+	default:
+		return
+	}
+	cmd.Run()
+}
+
+func localIp() string {
+	if runtime.GOOS == "windows" {
+		return "localhost"
+	}
+
+	addrs, err := net.InterfaceAddrs()
+	if err != nil {
+		return "localhost"
+	}
+
+	for _, addr := range addrs {
+		ipNet, ok := addr.(*net.IPNet)
+		if ok && !ipNet.IP.IsLoopback() && ipNet.IP.To4() != nil {
+			return ipNet.IP.String()
+		}
+	}
+	return "localhost"
 }
 
 type templateWraper interface {
