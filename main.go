@@ -160,7 +160,8 @@ func openBrower(url string) {
 	default:
 		return
 	}
-	cmd.Run()
+	addAtrribute(cmd)
+	cmd.Start()
 }
 
 func localIp() string {
