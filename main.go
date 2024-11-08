@@ -18,7 +18,7 @@ const (
 	indexPageFile = "index.html"
 	// resPageFile   = "res.html"
 	resPageFile = "index.html"
-	debug       = !true
+	debug       = true
 )
 
 var (

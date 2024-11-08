@@ -1,47 +1,115 @@
 <!doctype html>
 <html lang="en,ar">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Search</title>
-        {{template "style.html"}}
-    </head>
-    <body class="text-xl">
-        <nav
-            id="navbar"
-            class="transform transition-transform duration-300 ease-in-out bg-gray-500 py-4 px-4 fixed bottom-0 left-0 sm:bottom-auto sm:top-0 w-full flex gap-1 items-center justify-center"
-        >
-            <input
-                type="text"
-                id="input"
-                name="input"
-                placeholder="اكتب هنا"
-                class="w-[50vw] text-right direction-rtl p-2 bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                value="{{.PreInVal}}"
-                required
-            />
-            <button
-                title="Search by root"
-                onclick="setSubmiter('root')"
-                class="rounded border p-2 text-white border-blue-700 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300"
-            >
-                ROOT
-            </button>
-            <button
-                title="Scan intire dictionary"
-                class="rounded border p-2 text-white border-blue-700 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300"
-                onclick="setSubmiter('text')"
-            >
-                TEXT
-            </button>
-        </nav>
 
-        {{if .IsRes}}
-        <main class="pt-4 sm:pt-24 pb-24 mx-4">{{template "res.html" .}}</main>
-        {{end}}
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Search</title>
+    {{template "style.html"}}
+</head>
 
-        <script>
-            // {{template "main.js"}}
-        </script>
-    </body>
+<body class="text-2xl sm:text-3xl">
+    <nav id="navbar"
+        class="bg-blue-50 py-2 px-4 fixed bottom-0 left-0 sm:bottom-auto sm:top-0 w-full flex items-center justify-center gap-4">
+        <div class="border rounded-xl border-blue-400 p-2 flex gap-1 items-center justify-center">
+            <button title="Scan intire dictionary" class="p-2" onclick="setSubmiter('text')">
+                <!-- نص -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="w-6 h-6"
+                    viewBox="0 0 16 16">
+                    <path
+                        d="M1.5 0A1.5 1.5 0 0 0 0 1.5v2A1.5 1.5 0 0 0 1.5 5h13A1.5 1.5 0 0 0 16 3.5v-2A1.5 1.5 0 0 0 14.5 0zm1 2h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1 0-1m9.927.427A.25.25 0 0 1 12.604 2h.792a.25.25 0 0 1 .177.427l-.396.396a.25.25 0 0 1-.354 0zM0 8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm1 3v2a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2zm14-1V8a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v2zM2 8.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0 4a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1-.5-.5" />
+                </svg>
+            </button>
+            <button title="Search by root" onclick="setSubmiter('root')"
+                class="p-2 border-r border-blue-950 border-opacity-30">
+                <!-- جزر -->
+                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="w-6 h-6" viewBox="0 0 16 16">
+                    <path
+                        d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
+                </svg>
+            </button>
+            <button id="inputClear" class="ml-1 p2 opacity-60">
+                <svg width="24" height="24" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"
+                    class="w-6 h-6">
+                    <path
+                        d="M11.782 4.032a.575.575 0 1 0-.813-.814L7.5 6.687 4.032 3.218a.575.575 0 0 0-.814.814L6.687 7.5l-3.469 3.468a.575.575 0 0 0 .814.814L7.5 8.313l3.469 3.469a.575.575 0 0 0 .813-.814L8.313 7.5l3.469-3.468Z"
+                        fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"></path>
+                </svg>
+            </button>
+            <input type="text" id="input" name="input" placeholder="اكتب هنا"
+                class="text-right direction-rtl p-1 w-[45vw] sm:w-40 bg-transparent focus:outline-none focus:ring-0 "
+                value="{{.PreInVal}}" required />
+        </div>
+        <div class="relative sm:static flex items-center bg-inherit">
+            <button id="mobileHamTouggle" class="sm:hidden">
+                <!-- mobile nab -->
+                <svg id="mobileHamTouggleDot" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                    fill="currentColor" class="w-6 h-6" viewBox="0 0 16 16">
+                    <path
+                        d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0" />
+                </svg>
+                <svg width="24" height="24" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"
+                    id="mobileHamTouggleCross" class="w-6 h-6 hidden">
+                    <path
+                        d="M11.782 4.032a.575.575 0 1 0-.813-.814L7.5 6.687 4.032 3.218a.575.575 0 0 0-.814.814L6.687 7.5l-3.469 3.468a.575.575 0 0 0 .814.814L7.5 8.313l3.469 3.469a.575.575 0 0 0 .813-.814L8.313 7.5l3.469-3.468Z"
+                        fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"></path>
+                </svg>
+            </button>
+            <div id="mobileHamMenu"
+                class="absolute sm:static bottom-16 right-0 rounded-l border border-blue-400 border-opacity-40 sm:border-0  shadow-lg sm:shadow-none bg-inherit w-44 sm:w-auto p-4 flex flex-col gap-4 sm:flex-row hidden sm:flex">
+                <div class="flex items-center flex-1 gap-2">
+                    <div class="text-nowrap">Font:</div>
+                    <button onclick="fontSizePlus()" class="mr-2">
+                        <svg class="w-6 h-6" width="15" height="15" viewBox="0 0 15 15" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M8 2.75a.5.5 0 0 0-1 0V7H2.75a.5.5 0 0 0 0 1H7v4.25a.5.5 0 0 0 1 0V8h4.25a.5.5 0 0 0 0-1H8V2.75Z"
+                                fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"></path>
+                        </svg>
+                    </button>
+                    <button onclick="fontSizeMinus()">
+                        <svg class="w-6 h-6" width="15" height="15" viewBox="0 0 15 15" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path d="M2.25 7.5a.5.5 0 0 1 .5-.5h9.5a.5.5 0 0 1 0 1h-9.5a.5.5 0 0 1-.5-.5Z"
+                                fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div>Theme:</div>
+                    <button id="themeTouggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            id="light" class="w-6 h-6 hidden" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" class="feather feather-sun">
+                            <circle cx="12" cy="12" r="5"></circle>
+                            <path
+                                d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42">
+                            </path>
+                        </svg>
+                        <svg width="24" id="reading" class="w-6 h-6 hidden" height="18" viewBox="0 0 24 18" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M17 13a5 5 0 1 0-10 0M12 1v3M4.22 5.22l1.42 1.42M1 13h2M21 13h2M18.36 6.64l1.42-1.42M23 17H1"
+                                stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                        <svg id="dark" class="w-6 h-6 hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" class="feather feather-moon">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    {{if .IsRes}}
+    <main class="pt-4 sm:pt-24 pb-24 mx-4 md:mx-10">{{template "res.html" .}}</main>
+    {{end}}
+
+    <script>
+        // {{template "main.js"}}
+    </script>
+</body>
+
 </html>
