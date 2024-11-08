@@ -144,7 +144,7 @@ func main() {
 		return
 	}
 
-	openBrower("http://localhost:" + port)
+	// openBrower("http://localhost:" + port)
 	select {}
 }
 
@@ -154,6 +154,9 @@ func openBrower(url string) {
 	case "windows":
 		cmd = exec.Command("cmd", "/c", "start", url)
 	case "linux":
+		if runtime.GOARCH == "arm64" {
+			return
+		}
 		cmd = exec.Command("xdg-open", url)
 	case "darwin":
 		cmd = exec.Command("open", url)
