@@ -37,74 +37,68 @@
                 </svg>
             </button>
             <input type="text" id="input" name="input" placeholder="اكتب هنا"
-                class="text-right direction-rtl p-1 w-[45vw] sm:w-40 bg-transparent focus:outline-none focus:ring-0 "
-                value="{{.PreInVal}}" required />
+                class="text-right direction-rtl p-1 w-[45vw] md:w-72 bg-transparent focus:outline-none focus:ring-0 "
+                value="{{.PreInVal}}" required {{if not .IsRes}}autofocus{{end}} />
         </div>
-        <div class="relative sm:static flex items-center bg-inherit">
-            <button id="mobileHamTouggle" class="sm:hidden">
-                <!-- mobile nab -->
-                <svg id="mobileHamTouggleDot" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                    fill="currentColor" class="w-6 h-6" viewBox="0 0 16 16">
+
+        <!-- TODO: do it later not important for the site to func
+        <div class="flex items-center gap-2">
+            <button id="themeTouggle">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    id="light" class="w-6 h-6 hidden" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" class="feather feather-sun">
+                    <circle cx="12" cy="12" r="5"></circle>
                     <path
-                        d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0" />
+                        d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42">
+                    </path>
                 </svg>
-                <svg width="24" height="24" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"
-                    id="mobileHamTouggleCross" class="w-6 h-6 hidden">
+                <svg width="24" id="reading" class="w-6 h-6 hidden" height="18" viewBox="0 0 24 18" fill="none"
+                    xmlns="http://www.w3.org/2000/svg">
                     <path
-                        d="M11.782 4.032a.575.575 0 1 0-.813-.814L7.5 6.687 4.032 3.218a.575.575 0 0 0-.814.814L6.687 7.5l-3.469 3.468a.575.575 0 0 0 .814.814L7.5 8.313l3.469 3.469a.575.575 0 0 0 .813-.814L8.313 7.5l3.469-3.468Z"
-                        fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"></path>
+                        d="M17 13a5 5 0 1 0-10 0M12 1v3M4.22 5.22l1.42 1.42M1 13h2M21 13h2M18.36 6.64l1.42-1.42M23 17H1"
+                        stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+                <svg id="dark" class="w-6 h-6 hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" class="feather feather-moon">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
                 </svg>
             </button>
-            <div id="mobileHamMenu"
-                class="absolute sm:static bottom-16 right-0 rounded-l border border-blue-400 border-opacity-40 sm:border-0  shadow-lg sm:shadow-none bg-inherit w-44 sm:w-auto p-4 flex flex-col gap-4 sm:flex-row hidden sm:flex">
-                <div class="flex items-center flex-1 gap-2">
-                    <div class="text-nowrap">Font:</div>
-                    <button onclick="fontSizePlus()" class="mr-2">
-                        <svg class="w-6 h-6" width="15" height="15" viewBox="0 0 15 15" fill="none"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                d="M8 2.75a.5.5 0 0 0-1 0V7H2.75a.5.5 0 0 0 0 1H7v4.25a.5.5 0 0 0 1 0V8h4.25a.5.5 0 0 0 0-1H8V2.75Z"
-                                fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"></path>
-                        </svg>
-                    </button>
-                    <button onclick="fontSizeMinus()">
-                        <svg class="w-6 h-6" width="15" height="15" viewBox="0 0 15 15" fill="none"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path d="M2.25 7.5a.5.5 0 0 1 .5-.5h9.5a.5.5 0 0 1 0 1h-9.5a.5.5 0 0 1-.5-.5Z"
-                                fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"></path>
-                        </svg>
-                    </button>
-                </div>
-                <div class="flex items-center gap-2">
-                    <div>Theme:</div>
-                    <button id="themeTouggle">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                            id="light" class="w-6 h-6 hidden" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round" class="feather feather-sun">
-                            <circle cx="12" cy="12" r="5"></circle>
-                            <path
-                                d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42">
-                            </path>
-                        </svg>
-                        <svg width="24" id="reading" class="w-6 h-6 hidden" height="18" viewBox="0 0 24 18" fill="none"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                d="M17 13a5 5 0 1 0-10 0M12 1v3M4.22 5.22l1.42 1.42M1 13h2M21 13h2M18.36 6.64l1.42-1.42M23 17H1"
-                                stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-                        </svg>
-                        <svg id="dark" class="w-6 h-6 hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round" class="feather feather-moon">
-                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-        </div>
+        </div> -->
     </nav>
 
     {{if .IsRes}}
     <main class="pt-4 sm:pt-24 pb-24 mx-4 md:mx-10">{{template "res.html" .}}</main>
+    {{else}}
+    <main class="pt-4 sm:pt-24 pb-24 mx-4 md:mx-10">
+        <div class="font-semibold my-4">Hi <br>Thanks for uing this thing.</div>
+
+        <section>
+            <div>
+                Here are some help:
+            </div>
+            <div>
+                <ol class="list-decimal list-inside">
+                    <li>
+                        The search icon is for root search.
+                    </li>
+                    <li>
+                        The other guffy looking one is for full text search.
+                    </li>
+                    <li>
+                        Press SHIFT or CTRL + Enter for full text search.
+                    </li>
+                    <li>
+                        Press s or i to hop into the search bar.
+                    </li>
+                    <li>
+                        Press j to go down or k for up.
+                    </li>
+                </ol>
+            </div>
+
+        </section>
+    </main>
     {{end}}
 
     <script>
