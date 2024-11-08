@@ -79,7 +79,7 @@ func main() {
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		err := tmpl.ExecuteTemplate(w, indexPageFile, ResData{IsRes: false})
-		if err != nil {
+		if debug && err != nil {
 			log.Fatal(err)
 		}
 	})
@@ -88,7 +88,7 @@ func main() {
 		w := r.FormValue("w")
 		e, _ := searchByRoot(conn, w)
 		d := ResData{w, e, true, w}
-		if err := tmpl.ExecuteTemplate(wt, resPageFile, &d); err != nil {
+		if err := tmpl.ExecuteTemplate(wt, resPageFile, &d); debug && err != nil {
 			log.Fatal(err)
 		}
 	})
@@ -100,7 +100,7 @@ func main() {
 			log.Fatal(err)
 		}
 		d := ResData{w, e, true, w}
-		if err := tmpl.ExecuteTemplate(wt, resPageFile, &d); err != nil {
+		if err := tmpl.ExecuteTemplate(wt, resPageFile, &d); debug && err != nil {
 			log.Fatal(err)
 		}
 	})
