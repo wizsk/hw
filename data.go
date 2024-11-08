@@ -1,6 +1,8 @@
 package main
 
 import (
+	"strings"
+
 	"zombiezen.com/go/sqlite"
 	"zombiezen.com/go/sqlite/sqlitex"
 )
@@ -17,6 +19,7 @@ type Entry struct {
 type Entries []Entry
 
 func searchByTxt(conn *sqlite.Conn, str string) (Entries, error) {
+	str = strings.TrimSpace(str)
 	e := Entries{}
 	const q = `SELECT word, is_root, REPLACE(def, ?, '<span style="background: yellow;">' || ? || '</span>') AS def
  	FROM dict WHERE INSTR(def, ?) > 0 LIMIT 50`
@@ -31,6 +34,7 @@ func searchByTxt(conn *sqlite.Conn, str string) (Entries, error) {
 }
 
 func searchByRoot(conn *sqlite.Conn, root string) (Entries, error) {
+	root = strings.TrimSpace(root)
 	e := Entries{}
 	const q = `SELECT id, word, CASE word when ? then 1 else 0 end as highlight, def, is_root
 		FROM dict WHERE pid IN (SELECT pid FROM dict WHERE word = ?) ORDER BY id;`
