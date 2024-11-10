@@ -132,8 +132,6 @@ func main() {
 		}
 	}(run)
 
-	fmt.Println("Holdon... opening on your brwoser")
-
 	go func(c chan<- bool) {
 		time.Sleep(2 * time.Second)
 		c <- true
@@ -144,7 +142,7 @@ func main() {
 		return
 	}
 
-	// openBrower("http://localhost:" + port)
+	openBrower("http://localhost:" + port)
 	select {}
 }
 
@@ -154,7 +152,15 @@ func openBrower(url string) {
 	case "windows":
 		cmd = exec.Command("cmd", "/c", "start", url)
 	case "linux":
-		if runtime.GOARCH == "arm64" {
+		// not running graphycally
+		session := os.Getenv("XDG_SESSION_TYPE")
+
+		if !(session == "wayland" || session == "x11") {
+			fmt.Println("[WARNINING] Your not running x11 or wayland. No browsers will be opened")
+			return
+		}
+		if exec.Command("command", "-v", "xdg-open").Run() != nil {
+			fmt.Println("[WARNINING] xdg-open command not found")
 			return
 		}
 		cmd = exec.Command("xdg-open", url)
@@ -165,6 +171,7 @@ func openBrower(url string) {
 	}
 	addAtrribute(cmd)
 	cmd.Start()
+	fmt.Println("Holdon... opening on your brwoser")
 }
 
 func localIp() string {
