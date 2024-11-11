@@ -24,7 +24,7 @@ sudo mv hw /usr/local/bin/ # or mv hw ~/.local/bin/
 ## Usages
 
 ```
-hw help
+>> hw help
 hw: [port] [COMMANDS...]
 PORT:
         Just the port number. (default: 8001)
