@@ -20,6 +20,7 @@ import (
 
 const (
 	progName      = "hw"
+	version       = "0.9"
 	dbName        = "hw.db"
 	dbPath        = "assets/" + dbName
 	indexPageFile = "index.html"
@@ -62,11 +63,18 @@ PORT:
 COMMANDS:
 	nobrowser, nb
 		don't open browser
+	version
+		print version number
 `
 
 func unkownCmd(c string) {
 	fmt.Printf("Unkown command: %q\n", c)
 	printUsagesAndExit()
+}
+
+func printVersionAndExit() {
+	fmt.Printf("%s version v%s %s/%s\n", progName, version, runtime.GOOS, runtime.GOARCH)
+	os.Exit(0)
 }
 
 func printUsagesAndExit() {
@@ -82,6 +90,9 @@ func parseAragsAndFlags() {
 
 		case "nb", "nobrowser":
 			willOpenBrowser = false
+
+		case "version":
+			printVersionAndExit()
 
 		default:
 			if len(v) == 4 {
