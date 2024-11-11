@@ -1,6 +1,6 @@
 <div class="divide-y divide-slate-300">
     {{range .Entries}}
-    <div class="px-2 py-4">
+    <div class="px-2 py-4 {{if .IsRoot}} text-blue-800 {{end}}">
         {{.Def}}
     </div>
     {{else}}
