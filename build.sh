@@ -1,16 +1,19 @@
 #!/usr/bin/env sh
 
-set -e
+set -ex
 
-GOOS=linux CGO_ENABLED=0 go build -ldflags "-s -w" -o build/
-GOARCH=arm64 GOOS=linux go build -ldflags "-s -w" -o build/hw_arm
-GOOS=windows GOARCH=amd64 go build -ldflags "-s -w" -o build/
+# build directory
+bd="build"
+rm -rf "$bd/"*
 
-[ "$1" = "c" ] || exit
-cd build || exit
+GGOARCH=amd64 GOOS=linux CGO_ENABLED=0 go build -ldflags "-s -w" -o build/
+tar -czvf "$bd/hw_Linux_x86_64.tar.gz"  -C "$bd" "hw"
+rm "$bd/hw"
 
-tar -czvf hw_Linux_aarch64.tar.gz hw_arm
-tar -czvf hw_Linux_x86_64.tar.gz hw
-zip -r hw_windows_x86_64.zip hw.exe
+GOARCH=arm64 GOOS=linux CGO_ENABLED=0 go build -ldflags "-s -w" -o build/
+tar -czvf "$bd/hw_Linux_aarch64.tar.gz" -C "$bd" "hw"
+rm "$bd/hw"
 
-
+GOOS=windows GOARCH=amd64 CGO_ENABLED=0  go build -ldflags "-s -w" -o build/
+zip -j "$bd/hw_windows_x86_64.zip" "$bd/hw.exe"
+rm "$bd/hw.exe"
