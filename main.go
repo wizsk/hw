@@ -19,6 +19,7 @@ import (
 )
 
 const (
+	debug         = !true
 	progName      = "hw"
 	version       = "0.9"
 	dbName        = "hw.db"
@@ -28,7 +29,6 @@ const (
 	rootExplainPageFile = "index.html"
 	// resPageFile   = "res.html"
 	resPageFile = "index.html"
-	debug       = !true
 	defaultPort = "8001"
 )
 
