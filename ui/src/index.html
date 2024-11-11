@@ -4,7 +4,14 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Search</title>
+    <link rel="shortcut icon" href="/assets/pub/fav.png" type="image/x-icon">
+    {{if .IsRes}}
+    <title>Search: {{.PreInVal}}</title>
+    {{else if .IsRootPage}}
+    <title>Arabic Verb Families</title>
+    {{else}}
+    <title>Hans Wehr's Dictionary</title>
+    {{end}}
     {{template "style.html"}}
 </head>
 
@@ -69,9 +76,12 @@
 
     {{if .IsRes}}
     <main class="pt-4 sm:pt-24 pb-24 mx-4 md:mx-10">{{template "res.html" .}}</main>
+    {{else if .IsRootPage}}
+    <main class="bg-gray-50 text-gray-900 pt-4 sm:pt-24 pb-24">{{template "roots.html" .}}</main>
+
     {{else}}
     <main class="pt-4 sm:pt-24 pb-24 mx-4 md:mx-10">
-        <div class="font-semibold my-4">Hi <br>Thanks for using this thing.</div>
+        <h1 class="font-semibold my-4">Hi there!</h1>
 
         <section>
             <div>
@@ -79,6 +89,10 @@
             </div>
             <div>
                 <ol class="list-decimal list-inside">
+                    <li>
+                        Go to <a class="text-blue-800" href="/roots">/roots</a> page to get details about
+                        roots
+                    </li>
                     <li>
                         The Magnifin icon is for root search.
                     </li>

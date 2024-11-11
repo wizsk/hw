@@ -11,6 +11,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strconv"
 	"text/template"
 	"time"
 
@@ -21,6 +22,8 @@ const (
 	dbName        = "hw.db"
 	dbPath        = "assets/" + dbName
 	indexPageFile = "index.html"
+	// rootExplainPageFile = "roots.html"
+	rootExplainPageFile = "index.html"
 	// resPageFile   = "res.html"
 	resPageFile = "index.html"
 	debug       = !true
@@ -34,31 +37,63 @@ var (
 
 	//go:embed ui/src/*
 	uiTmpls embed.FS
+
+	// always open browser
+	willOpenBrowser = true // always open browser
+
+	// default port 8001
+	port = "8001"
 )
 
 type ResData struct {
-	Word     string
-	Entries  Entries
-	IsRes    bool   // is result page
-	PreInVal string // previous input value
+	Word       string
+	Entries    Entries
+	IsRes      bool   // is result page
+	IsRootPage bool   // is result page
+	PreInVal   string // previous input value
+}
+
+func parseAragsAndFlags() {
+	for _, v := range os.Args[1:] {
+		switch v {
+		case "nb", "nobrowser":
+			willOpenBrowser = false
+
+		default:
+			if len(v) == 4 {
+				if _, err := strconv.Atoi(v); err == nil {
+					port = v
+				}
+			}
+		}
+	}
 }
 
 func main() {
+	parseAragsAndFlags()
+
 	dbTmpPath := filepath.Join(os.TempDir(), dbName)
 	{
 		d, err := dataBase.Open(dbPath)
 		if err != nil {
 			panic(err)
 		}
-		dt, err := os.Create(dbTmpPath)
-		if err != nil {
-			panic(err)
-		}
-		if _, err := io.Copy(dt, d); err != nil {
-			panic(err)
+		if s, err := os.Stat(dbTmpPath); err == nil {
+			if ds, err := d.Stat(); err != nil {
+				panic(err)
+			} else if s.Size() != ds.Size() {
+				// if size are the same then no need to write a new one
+				dt, err := os.Create(dbTmpPath)
+				if err != nil {
+					panic(err)
+				}
+				if _, err := io.Copy(dt, d); err != nil {
+					panic(err)
+				}
+				dt.Close()
+			}
 		}
 		d.Close()
-		dt.Close()
 	}
 
 	conn, err := sqlite.OpenConn(dbTmpPath, sqlite.OpenReadOnly)
@@ -78,7 +113,17 @@ func main() {
 	}
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/" {
+			http.Redirect(w, r, "/", http.StatusMovedPermanently)
+		}
 		err := tmpl.ExecuteTemplate(w, indexPageFile, ResData{IsRes: false})
+		if debug && err != nil {
+			log.Fatal(err)
+		}
+	})
+
+	http.HandleFunc("/roots", func(w http.ResponseWriter, r *http.Request) {
+		err := tmpl.ExecuteTemplate(w, rootExplainPageFile, ResData{IsRootPage: true})
 		if debug && err != nil {
 			log.Fatal(err)
 		}
@@ -87,7 +132,7 @@ func main() {
 	http.HandleFunc("/r", func(wt http.ResponseWriter, r *http.Request) {
 		w := r.FormValue("w")
 		e, _ := searchByRoot(conn, w)
-		d := ResData{w, e, true, w}
+		d := ResData{w, e, true, false, w}
 		if err := tmpl.ExecuteTemplate(wt, resPageFile, &d); debug && err != nil {
 			log.Fatal(err)
 		}
@@ -99,14 +144,13 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		d := ResData{w, e, true, w}
+		d := ResData{w, e, true, false, w}
 		if err := tmpl.ExecuteTemplate(wt, resPageFile, &d); debug && err != nil {
 			log.Fatal(err)
 		}
 	})
 	http.Handle("/assets/", http.FileServerFS(pubDir))
 
-	port := "8001"
 	if len(os.Args) == 2 {
 		port = os.Args[1]
 	}
@@ -146,7 +190,12 @@ func main() {
 	select {}
 }
 
+// only if gloabal var 'willOpenBrowser == true' then open
 func openBrower(url string) {
+	if !willOpenBrowser {
+		return
+	}
+
 	var cmd *exec.Cmd
 	switch runtime.GOOS {
 	case "windows":
