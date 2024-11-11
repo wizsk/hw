@@ -15,7 +15,7 @@
     {{template "style.html"}}
 </head>
 
-<body class="text-2xl sm:text-3xl">
+<body class="text-xl md:text-3xl bg-gray-50 text-gray-800">
     <nav id="navbar"
         class="bg-blue-50 py-2 px-4 fixed bottom-0 left-0 sm:bottom-auto sm:top-0 w-full flex items-center justify-center gap-4">
         <div class="border rounded-xl border-blue-400 p-2 flex gap-1 items-center justify-center">
@@ -77,45 +77,39 @@
     {{if .IsRes}}
     <main class="pt-4 sm:pt-24 pb-24 mx-4 md:mx-10">{{template "res.html" .}}</main>
     {{else if .IsRootPage}}
-    <main class="bg-gray-50 text-gray-900 pt-4 sm:pt-24 pb-24">{{template "roots.html" .}}</main>
-
+    <main class="pt-4 sm:pt-24 pb-24">{{template "roots.html" .}}</main>
     {{else}}
-    <main class="pt-4 sm:pt-24 pb-24 mx-4 md:mx-10">
-        <h1 class="font-semibold my-4">Hi there!</h1>
+    <main class="pt-8 sm:pt-24 mx-6 md:mx-12 text-gray-800">
+        <section class="p-4">
+            <h1 class="text-3xl sm:text-4xl text-blue-800 mb-8">Hi there!</h1>
+            <p class="mb-6">Here are some tips:</p>
 
-        <section>
-            <div>
-                Here are some tips:
-            </div>
-            <div>
-                <ol class="list-decimal list-inside">
-                    <li>
-                        Go to <a class="text-blue-800" href="/roots">/roots</a> page to get details about
-                        roots
-                    </li>
-                    <li>
-                        The Magnifin icon is for root search.
-                    </li>
-                    <li>
-                        The other guffy looking one is for full text search. Searching the whole dictionary for matching
-                        phrases.
-                    </li>
-                    <li>
-                        Press "SHIFT + Enter" or "CTRL + Enter" for full text search.
-                    </li>
-                    <li>
-                        Press "s" or "i" to hop into the search bar.
-                    </li>
-                    <li>
-                        Press "j" to scroll up.
-                    </li>
-                    <li>
-                        Press "k" to scroll down.
-                    </li>
-                </ol>
-            </div>
-
-
+            <ol class="list-decimal list-inside space-y-3">
+                <li>
+                    Go to <a class="text-blue-800 hover:text-blue-800 transition duration-200" href="/roots">/roots</a>
+                    page to get details about roots
+                </li>
+                <li>
+                    The Magnifin icon is used for root search.
+                </li>
+                <li>
+                    The other icon is used for searching the entire dictionary for matching phrases.
+                </li>
+                <li>
+                    Press <span class="text-blue-800">SHIFT + Enter</span> or <span class="text-blue-800">CTRL +
+                        Enter</span> for full text search.
+                </li>
+                <li>
+                    Press <span class="text-blue-800">s</span> or <span class="text-blue-800">i</span> to focus on
+                    the search bar.
+                </li>
+                <li>
+                    Press <span class="text-blue-800">c</span> to scroll up.
+                </li>
+                <li>
+                    Press <span class="text-blue-800">k</span> to scroll down.
+                </li>
+            </ol>
         </section>
     </main>
     {{end}}

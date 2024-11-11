@@ -19,6 +19,7 @@ import (
 )
 
 const (
+	progName      = "hw"
 	dbName        = "hw.db"
 	dbPath        = "assets/" + dbName
 	indexPageFile = "index.html"
@@ -27,6 +28,7 @@ const (
 	// resPageFile   = "res.html"
 	resPageFile = "index.html"
 	debug       = !true
+	defaultPort = "8001"
 )
 
 var (
@@ -42,7 +44,7 @@ var (
 	willOpenBrowser = true // always open browser
 
 	// default port 8001
-	port = "8001"
+	port = defaultPort
 )
 
 type ResData struct {
@@ -53,9 +55,31 @@ type ResData struct {
 	PreInVal   string // previous input value
 }
 
+const usages = progName + `: [port] [COMMANDS...]
+PORT:
+	Just the port number. (default: ` + defaultPort + `)
+
+COMMANDS:
+	nobrowser, nb
+		don't open browser
+`
+
+func unkownCmd(c string) {
+	fmt.Printf("Unkown command: %q\n", c)
+	printUsagesAndExit()
+}
+
+func printUsagesAndExit() {
+	fmt.Print(usages)
+	os.Exit(0)
+}
+
 func parseAragsAndFlags() {
 	for _, v := range os.Args[1:] {
 		switch v {
+		case "help", "--help", "-help", "-h", "--h":
+			printUsagesAndExit()
+
 		case "nb", "nobrowser":
 			willOpenBrowser = false
 
@@ -63,8 +87,10 @@ func parseAragsAndFlags() {
 			if len(v) == 4 {
 				if _, err := strconv.Atoi(v); err == nil {
 					port = v
+					continue
 				}
 			}
+			unkownCmd(v)
 		}
 	}
 }
@@ -78,21 +104,14 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		if s, err := os.Stat(dbTmpPath); err == nil {
-			if ds, err := d.Stat(); err != nil {
-				panic(err)
-			} else if s.Size() != ds.Size() {
-				// if size are the same then no need to write a new one
-				dt, err := os.Create(dbTmpPath)
-				if err != nil {
-					panic(err)
-				}
-				if _, err := io.Copy(dt, d); err != nil {
-					panic(err)
-				}
-				dt.Close()
-			}
+		dt, err := os.Create(dbTmpPath)
+		if err != nil {
+			panic(err)
 		}
+		if _, err := io.Copy(dt, d); err != nil {
+			panic(err)
+		}
+		dt.Close()
 		d.Close()
 	}
 
