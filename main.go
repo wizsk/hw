@@ -29,7 +29,7 @@ const (
 	rootExplainPageFile = "index.html"
 	// resPageFile   = "res.html"
 	resPageFile = "index.html"
-	defaultPort = "8001"
+	defaultPort = "8080"
 )
 
 var (
@@ -181,39 +181,55 @@ func main() {
 	})
 	http.Handle("/assets/", http.FileServerFS(pubDir))
 
-	if len(os.Args) == 2 {
-		port = os.Args[1]
+	serveErr := make(chan struct{})
+
+	curPort := 8080
+	portTrylimit := 1
+	if port != defaultPort {
+		// err was already checked while parsing args
+		curPort, _ = strconv.Atoi(port)
+	} else {
+		portTrylimit = 10
+	}
+	success := false
+
+loop:
+	for i := 0; i < portTrylimit; i++ {
+		go func(c chan<- struct{}) {
+			if err = http.ListenAndServe(fmt.Sprintf(":%d", curPort), nil); err != nil {
+				c <- struct{}{}
+			}
+		}(serveErr)
+
+		select {
+		case <-serveErr:
+			if port != defaultPort {
+				success = false
+				break loop
+			}
+			curPort++
+			continue loop
+		case <-time.Tick(2 * time.Second):
+			success = true
+			break loop
+		}
+	}
+
+	if !success {
+		fmt.Printf("Could not start the server at port %d\n", curPort)
+		fmt.Printf("It may be that the port %d is already used (defaut: %s)\n", curPort, defaultPort)
+		fmt.Println("You can specify port number by progname follwed by the port nubmer")
+		fmt.Println("Example: `hw 8081`")
+		os.Exit(1)
 	}
 
 	fmt.Println("Running:")
-	fmt.Println("Localy: http://localhost:" + port)
+	fmt.Printf("Localy: http://localhost:%d\n", curPort)
 
 	if runtime.GOOS == "linux" {
-		fmt.Printf("Internet?: http://%s:%s\n", localIp(), port)
+		fmt.Printf("Internet?: http://%s:%d\n", localIp(), curPort)
 	} else {
-		fmt.Println("Find your ip please :D")
-	}
-
-	run := make(chan bool)
-
-	go func(c chan<- bool) {
-		if err = http.ListenAndServe(":"+port, nil); err != nil {
-			fmt.Println("encountered err:", err)
-			fmt.Printf("It may be that the port %q is already used (defaut: 8001)\n", port)
-			fmt.Println("You can specify port number by progname follwed by the port nubmer")
-			fmt.Println("Example: `hw 8080`")
-			c <- false
-		}
-	}(run)
-
-	go func(c chan<- bool) {
-		time.Sleep(2 * time.Second)
-		c <- true
-	}(run)
-
-	runn := <-run
-	if !runn {
-		return
+		fmt.Println("Find your ip please.")
 	}
 
 	openBrower("http://localhost:" + port)
