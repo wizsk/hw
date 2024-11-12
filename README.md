@@ -29,7 +29,7 @@ Go to Windows Search, type `PowerShell`, then right-click on the PowerShell app 
 
 
 ```ps1
-irm https://raw.githubusercontent.com/wizsk/hw/refs/heads/main/install.ps1 | iex
+irm "https://raw.githubusercontent.com/wizsk/hw/refs/heads/main/install.ps1" | iex
 ```
 
 ## Usages
