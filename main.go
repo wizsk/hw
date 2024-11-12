@@ -21,7 +21,7 @@ import (
 const (
 	debug         = !true
 	progName      = "hw"
-	version       = "0.9"
+	version       = "1.0"
 	dbName        = "hw.db"
 	dbPath        = "assets/" + dbName
 	indexPageFile = "index.html"

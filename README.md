@@ -2,7 +2,7 @@
 
 A webapp for Hans Wehr's Dictionary of Modern Written Arabic.
 
-## Intstall
+## Intstall instructions
 
 ### complile
 
