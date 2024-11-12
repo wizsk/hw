@@ -25,11 +25,19 @@ sudo mv hw /usr/local/bin/ # or mv hw ~/.local/bin/
 
 Open an `Administrator PowerShell` prompt and paste the following command
 
-Go to Windows Search, type `PowerShell`, then right-click on the PowerShell app in the search results or click the small arrow (>) next to it, and select Run as Administrator.
+Go to Windows Search, type `PowerShell`, then right-click on the PowerShell app
+in the search results or click the small arrow (>) next to it, and select Run as Administrator.
 
 
 ```ps1
 irm "https://raw.githubusercontent.com/wizsk/hw/refs/heads/main/install.ps1" | iex
+```
+
+To update to the latest version run. It doesn't check the current version. Instead,
+it simply downloads the latest `hw.exe` and replaces the existing `hw.exe` in the installed folder.
+
+```ps1
+irm "https://raw.githubusercontent.com/wizsk/hw/refs/heads/main/update.ps1" | iex
 ```
 
 ## Usages
