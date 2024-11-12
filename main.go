@@ -44,7 +44,7 @@ var (
 	// always open browser
 	willOpenBrowser = true // always open browser
 
-	// default port 8001
+	// default port 8080
 	port = defaultPort
 )
 
