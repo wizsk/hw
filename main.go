@@ -9,13 +9,12 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"runtime"
 	"strconv"
 	"text/template"
 	"time"
 
-	"zombiezen.com/go/sqlite"
+	"github.com/wizsk/hw/db"
 )
 
 const (
@@ -28,15 +27,15 @@ const (
 	// rootExplainPageFile = "roots.html"
 	rootExplainPageFile = "index.html"
 	// resPageFile   = "res.html"
-	resPageFile = "index.html"
-	defaultPort = "8080"
+	resPageFile    = "index.html"
+	defaultPort    = "8080"
+	ResultLimit    = 50 // for root and text search
+	RootSuggtLimit = 6  // for root and text search
 )
 
 var (
 	//go:embed assets/pub/*
 	pubDir embed.FS
-	//go:embed assets/hw.db
-	dataBase embed.FS
 
 	//go:embed ui/src/*
 	uiTmpls embed.FS
@@ -50,7 +49,7 @@ var (
 
 type ResData struct {
 	Word       string
-	Entries    Entries
+	Entries    db.Entries
 	IsRes      bool   // is result page
 	IsRootPage bool   // is result page
 	PreInVal   string // previous input value
@@ -109,29 +108,7 @@ func parseAragsAndFlags() {
 func main() {
 	parseAragsAndFlags()
 
-	dbTmpPath := filepath.Join(os.TempDir(), dbName)
-	{
-		d, err := dataBase.Open(dbPath)
-		if err != nil {
-			panic(err)
-		}
-		dt, err := os.Create(dbTmpPath)
-		if err != nil {
-			panic(err)
-		}
-		if _, err := io.Copy(dt, d); err != nil {
-			panic(err)
-		}
-		dt.Close()
-		d.Close()
-	}
-
-	conn, err := sqlite.OpenConn(dbTmpPath, sqlite.OpenReadOnly)
-	if err != nil {
-		panic(err)
-	}
-	defer conn.Close()
-
+	var err error
 	var tmpl templateWraper
 	if debug {
 		tmpl = &tmplW{}
@@ -161,7 +138,7 @@ func main() {
 
 	http.HandleFunc("/r", func(wt http.ResponseWriter, r *http.Request) {
 		w := r.FormValue("w")
-		e, _ := searchByRoot(conn, w)
+		e, _ := db.SearchByRoot(w, ResultLimit)
 		d := ResData{w, e, true, false, w}
 		if err := tmpl.ExecuteTemplate(wt, resPageFile, &d); debug && err != nil {
 			log.Fatal(err)
@@ -170,7 +147,7 @@ func main() {
 
 	http.HandleFunc("/t", func(wt http.ResponseWriter, r *http.Request) {
 		w := r.FormValue("w")
-		e, err := searchByTxt(conn, w)
+		e, err := db.SearchByTxt(w, ResultLimit, "")
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -238,7 +215,7 @@ loop:
 
 // only if gloabal var 'willOpenBrowser == true' then open
 func openBrower(url string) {
-	if !willOpenBrowser {
+	if !willOpenBrowser || debug {
 		return
 	}
 
