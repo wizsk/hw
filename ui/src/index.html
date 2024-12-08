@@ -18,7 +18,7 @@
 <body class="text-xl md:text-3xl bg-gray-50 text-gray-800">
     <nav id="navbar"
         class="bg-blue-50 py-2 px-4 fixed bottom-0 left-0 sm:bottom-auto sm:top-0 w-full flex items-center justify-center gap-4">
-        <div class="border rounded-xl border-blue-400 p-2 flex gap-1 items-center justify-center">
+        <div class="relative border rounded-xl border-blue-400 p-2 flex gap-1 items-center justify-center">
             <button title="Scan intire dictionary" class="p-2" onclick="setSubmiter('text')">
                 <!-- نص -->
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="w-6 h-6"
@@ -46,34 +46,16 @@
             <input type="text" id="input" name="input" placeholder="اكتب هنا"
                 class="text-right direction-rtl p-1 w-[45vw] md:w-72 bg-transparent focus:outline-none focus:ring-0 "
                 value="{{.PreInVal}}" required {{if not .IsRes}}autofocus{{end}} />
-        </div>
 
-        <!-- TODO: do it later not important for the site to func
-        <div class="flex items-center gap-2">
-            <button id="themeTouggle">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                    id="light" class="w-6 h-6 hidden" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                    stroke-linejoin="round" class="feather feather-sun">
-                    <circle cx="12" cy="12" r="5"></circle>
-                    <path
-                        d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42">
-                    </path>
-                </svg>
-                <svg width="24" id="reading" class="w-6 h-6 hidden" height="18" viewBox="0 0 24 18" fill="none"
-                    xmlns="http://www.w3.org/2000/svg">
-                    <path
-                        d="M17 13a5 5 0 1 0-10 0M12 1v3M4.22 5.22l1.42 1.42M1 13h2M21 13h2M18.36 6.64l1.42-1.42M23 17H1"
-                        stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-                </svg>
-                <svg id="dark" class="w-6 h-6 hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                    stroke-linejoin="round" class="feather feather-moon">
-                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                </svg>
-            </button>
-        </div> -->
+            <div id="inputSuggestions"
+                class="absolute right-0 bottom-16 md:bottom-auto md:top-20 bg-slate-200 border border-blue-400 flex flex-col-reverse md:flex-col text-right w-[45vw] md:w-72 divide-y divide-slate-300 hidden">
+            </div>
+
+        </div>
     </nav>
 
+
+    <!-- There should only be one main section always! -->
     {{if .IsRes}}
     <main class="pt-4 sm:pt-24 pb-24 mx-4 md:mx-10">{{template "res.html" .}}</main>
     {{else if .IsRootPage}}

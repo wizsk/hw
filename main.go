@@ -3,32 +3,30 @@ package main
 import (
 	"embed"
 	"fmt"
-	"io"
 	"log"
-	"net"
 	"net/http"
 	"os"
-	"os/exec"
 	"runtime"
 	"strconv"
-	"text/template"
+	"strings"
 	"time"
 
 	"github.com/wizsk/hw/db"
 )
 
 const (
-	debug         = !true
-	progName      = "hw"
-	version       = "1.0"
-	dbName        = "hw.db"
-	dbPath        = "assets/" + dbName
+	debug    = true
+	progName = "hw"
+	version  = "1.0"
+
 	indexPageFile = "index.html"
 	// rootExplainPageFile = "roots.html"
 	rootExplainPageFile = "index.html"
+	rootSuggtTmplFile   = "suggestion.html" // for root and text search
 	// resPageFile   = "res.html"
-	resPageFile    = "index.html"
-	defaultPort    = "8080"
+	resPageFile = "index.html"
+	defaultPort = "8080"
+
 	ResultLimit    = 50 // for root and text search
 	RootSuggtLimit = 6  // for root and text search
 )
@@ -47,14 +45,6 @@ var (
 	port = defaultPort
 )
 
-type ResData struct {
-	Word       string
-	Entries    db.Entries
-	IsRes      bool   // is result page
-	IsRootPage bool   // is result page
-	PreInVal   string // previous input value
-}
-
 const usages = progName + `: [port] [COMMANDS...]
 PORT:
 	Just the port number. (default: ` + defaultPort + `)
@@ -65,45 +55,6 @@ COMMANDS:
 	version
 		print version number
 `
-
-func unkownCmd(c string) {
-	fmt.Printf("Unkown command: %q\n", c)
-	printUsagesAndExit()
-}
-
-func printVersionAndExit() {
-	fmt.Printf("%s version v%s %s/%s\n", progName, version, runtime.GOOS, runtime.GOARCH)
-	os.Exit(0)
-}
-
-func printUsagesAndExit() {
-	fmt.Print(usages)
-	os.Exit(0)
-}
-
-func parseAragsAndFlags() {
-	for _, v := range os.Args[1:] {
-		switch v {
-		case "help", "--help", "-help", "-h", "--h":
-			printUsagesAndExit()
-
-		case "nb", "nobrowser":
-			willOpenBrowser = false
-
-		case "version":
-			printVersionAndExit()
-
-		default:
-			if len(v) == 4 {
-				if _, err := strconv.Atoi(v); err == nil {
-					port = v
-					continue
-				}
-			}
-			unkownCmd(v)
-		}
-	}
-}
 
 func main() {
 	parseAragsAndFlags()
@@ -138,8 +89,8 @@ func main() {
 
 	http.HandleFunc("/r", func(wt http.ResponseWriter, r *http.Request) {
 		w := r.FormValue("w")
-		e, _ := db.SearchByRoot(w, ResultLimit)
-		d := ResData{w, e, true, false, w}
+		e := db.SearchByRoot(w, ResultLimit).HTML()
+		d := ResData{w, e, true, false, w, nil}
 		if err := tmpl.ExecuteTemplate(wt, resPageFile, &d); debug && err != nil {
 			log.Fatal(err)
 		}
@@ -147,15 +98,35 @@ func main() {
 
 	http.HandleFunc("/t", func(wt http.ResponseWriter, r *http.Request) {
 		w := r.FormValue("w")
-		e, err := db.SearchByTxt(w, ResultLimit, "")
-		if err != nil {
-			log.Fatal(err)
-		}
-		d := ResData{w, e, true, false, w}
+		e := db.SearchByTxt(w, ResultLimit, "").HTML()
+		d := ResData{w, e, true, false, w, nil}
 		if err := tmpl.ExecuteTemplate(wt, resPageFile, &d); debug && err != nil {
 			log.Fatal(err)
 		}
 	})
+
+	http.HandleFunc("/sugg", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, "Post request only", http.StatusBadRequest)
+			return
+		}
+
+		v := strings.TrimSpace(r.FormValue("w"))
+		if v == "" {
+			http.Error(w, "No words provided", http.StatusNotFound)
+			return
+		}
+		s := db.RootSuggestion(v, RootSuggtLimit)
+		if s == nil {
+			http.Error(w, "Not found", http.StatusNotFound)
+			return
+		}
+		if tmpl.ExecuteTemplate(w, rootSuggtTmplFile, ResData{Suggestions: s}) != nil {
+			http.Error(w, "Something went wrong!", http.StatusInternalServerError)
+			return
+		}
+	})
+
 	http.Handle("/assets/", http.FileServerFS(pubDir))
 
 	serveErr := make(chan struct{})
@@ -211,75 +182,4 @@ loop:
 
 	openBrower("http://localhost:" + port)
 	select {}
-}
-
-// only if gloabal var 'willOpenBrowser == true' then open
-func openBrower(url string) {
-	if !willOpenBrowser || debug {
-		return
-	}
-
-	var cmd *exec.Cmd
-	switch runtime.GOOS {
-	case "windows":
-		cmd = exec.Command("cmd", "/c", "start", url)
-	case "linux":
-		// not running graphycally
-		session := os.Getenv("XDG_SESSION_TYPE")
-
-		if !(session == "wayland" || session == "x11") {
-			fmt.Println("[WARNINING] Your not running x11 or wayland. No browsers will be opened")
-			return
-		}
-		if exec.Command("command", "-v", "xdg-open").Run() != nil {
-			fmt.Println("[WARNINING] xdg-open command not found")
-			return
-		}
-		cmd = exec.Command("xdg-open", url)
-	case "darwin":
-		cmd = exec.Command("open", url)
-	default:
-		return
-	}
-	addAtrribute(cmd)
-	cmd.Start()
-	fmt.Println("Holdon... opening on your brwoser")
-}
-
-func localIp() string {
-	if runtime.GOOS == "windows" {
-		return "localhost"
-	}
-
-	addrs, err := net.InterfaceAddrs()
-	if err != nil {
-		return "localhost"
-	}
-
-	for _, addr := range addrs {
-		ipNet, ok := addr.(*net.IPNet)
-		if ok && !ipNet.IP.IsLoopback() && ipNet.IP.To4() != nil {
-			return ipNet.IP.String()
-		}
-	}
-	return "localhost"
-}
-
-type templateWraper interface {
-	ExecuteTemplate(wr io.Writer, name string, data any) error
-}
-
-type tmplW struct{}
-
-func (tp *tmplW) ExecuteTemplate(w io.Writer, name string, data any) error {
-	t, err := template.ParseGlob("ui/src/*")
-	if err != nil {
-		return err
-	}
-	return t.ExecuteTemplate(w, name, data)
-}
-
-func openEmbdedTmpl() (templateWraper, error) {
-	return template.ParseFS(uiTmpls, "ui/src/*")
-
 }

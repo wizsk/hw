@@ -3,6 +3,7 @@ package db
 import (
 	"errors"
 	"fmt"
+	"html/template"
 	"sort"
 	"strings"
 )
@@ -17,13 +18,43 @@ type Entry struct {
 	Def  string `json:"def"`
 }
 
+// this is a modifies template which returns the text as html
+type HEntry struct {
+	Id          int64 `json:"id"`
+	Pid         int64 `json:"pid"`
+	IsRoot      bool  `json:"is_root"`
+	IsHighlight bool  `json:"is_highlight"`
+	// Word is also the root when IsRoot is true
+	Word string        `json:"word"`
+	Def  template.HTML `json:"def"`
+}
+
 type Entries []Entry
+type HEntries []HEntry
 
 // by id
 func (e Entries) sort() {
 	sort.Slice(e, func(i, j int) bool {
 		return i < j
 	})
+}
+
+func (e Entries) HTML() HEntries {
+	if e == nil || len(e) == 0 {
+		return nil
+	}
+	res := make([]HEntry, 0, len(e))
+	for _, v := range e {
+		res = append(res, HEntry{
+			Id:          v.Id,
+			Pid:         v.Pid,
+			IsRoot:      v.IsRoot,
+			IsHighlight: v.IsHighlight,
+			Word:        v.Word,
+			Def:         template.HTML(v.Def),
+		})
+	}
+	return res
 }
 
 var (
@@ -75,7 +106,7 @@ func isSub(s, sub []rune) bool {
 }
 
 // input is cleaned while calling func
-func SearchByRoot(root string, lim int) (Entries, error) {
+func SearchByRoot(root string, lim int) Entries {
 	root = strings.TrimSpace(root)
 
 	found := 0
@@ -90,7 +121,7 @@ func SearchByRoot(root string, lim int) (Entries, error) {
 	}
 
 	if pid < 0 {
-		return nil, ErrorNotFound
+		return nil
 	}
 
 	for i := range len(dict) {
@@ -105,8 +136,11 @@ func SearchByRoot(root string, lim int) (Entries, error) {
 		}
 	}
 
+	if len(res) == 0 {
+		return nil
+	}
 	res.sort()
-	return res, nil
+	return res
 }
 
 // fmt is the replaced text
@@ -114,7 +148,7 @@ func SearchByRoot(root string, lim int) (Entries, error) {
 // provide "" to use the default
 //
 // input is cleaned while calling func
-func SearchByTxt(str string, lim int, format string) (Entries, error) {
+func SearchByTxt(str string, lim int, format string) Entries {
 	str = strings.TrimSpace(str)
 	if format == "" {
 		format = `<span style="background: yellow;">%s</span>`
@@ -135,9 +169,8 @@ func SearchByTxt(str string, lim int, format string) (Entries, error) {
 	}
 
 	if len(res) == 0 {
-		return nil, ErrorNotFound
+		return nil
 	}
-
 	res.sort()
-	return res, nil
+	return res
 }

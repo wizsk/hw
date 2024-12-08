@@ -1,6 +1,49 @@
 // main.js. Don't remvoe this comment!
 const inputClearBtn = document.getElementById("inputClear")
 const input = document.getElementById("input");
+const inputSugg = document.getElementById("inputSuggestions");
+
+const mainSection = document.querySelector("main");
+
+console.log(mainSection);
+let suggHinnedTimeoutId;
+
+function isSuggHidden() {
+  return inputSugg.classList.contains('hidden');
+}
+
+window.addEventListener('scroll', function (e) {
+  if (!isSuggHidden()) setTimeout(() => inputSugg.classList.add('hidden'), 100);
+})
+
+
+document.addEventListener('click', (e) => {
+  console.log(e.target);
+  if (!inputSugg.contains(e.target) && !input.contains(e.target)) {
+    if (!isSuggHidden()) inputSugg.classList.add('hidden');
+  }
+});
+
+document.addEventListener('scroll', (e) => {
+  if (!isSuggHidden()) inputSugg.classList.add('hidden');
+});
+
+
+let inputTimeout;
+input.addEventListener('input', () => {
+  clearTimeout(inputTimeout);
+
+  inputTimeout = setTimeout(async () => {
+    const res = await fetch(`/sugg?w=${encodeURIComponent(input.value)}`, { method: "POST" });
+    if (res.ok) {
+      const data = await res.text();
+      if (data) {
+        inputSugg.innerHTML = data;
+        inputSugg.classList.remove("hidden");
+      }
+    }
+  }, 400);
+})
 
 document.addEventListener('keydown', (e) => {
   if (document.activeElement === input) {
@@ -8,7 +51,6 @@ document.addEventListener('keydown', (e) => {
     return;
   }
 
-  console.log(e.code)
   switch (e.code) {
     case "KeyS":
     case "KeyI":
@@ -30,6 +72,7 @@ document.addEventListener('keydown', (e) => {
 
 inputClearBtn.addEventListener('click', () => {
   input.value = "";
+  input.focus();
 })
 
 input.addEventListener("keydown", function (e) {
