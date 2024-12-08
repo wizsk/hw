@@ -57,6 +57,10 @@ COMMANDS:
 `
 
 func main() {
+	if debug {
+		fmt.Println("--- Running in debug mode ---")
+		fmt.Println()
+	}
 	parseAragsAndFlags()
 
 	var err error

@@ -3,14 +3,7 @@ const inputClearBtn = document.getElementById("inputClear")
 const input = document.getElementById("input");
 const inputSugg = document.getElementById("inputSuggestions");
 
-const mainSection = document.querySelector("main");
-
-console.log(mainSection);
-let suggHinnedTimeoutId;
-
-function isSuggHidden() {
-  return inputSugg.classList.contains('hidden');
-}
+function isSuggHidden() { return inputSugg.classList.contains('hidden'); }
 
 window.addEventListener('scroll', function (e) {
   if (!isSuggHidden()) setTimeout(() => inputSugg.classList.add('hidden'), 100);
@@ -18,7 +11,6 @@ window.addEventListener('scroll', function (e) {
 
 
 document.addEventListener('click', (e) => {
-  console.log(e.target);
   if (!inputSugg.contains(e.target) && !input.contains(e.target)) {
     if (!isSuggHidden()) inputSugg.classList.add('hidden');
   }
@@ -45,27 +37,60 @@ input.addEventListener('input', () => {
   }, 400);
 })
 
+// ----------- keyboard shoutcuts ----------
 document.addEventListener('keydown', (e) => {
   if (document.activeElement === input) {
     if (e.code === "Escape") input.blur();
     return;
   }
 
+
+  // no composite key
+  if (/*e.shiftKey ||*/ e.ctrlKey) {
+    return;
+  }
+
   switch (e.code) {
     case "KeyS":
+      e.preventDefault();
+      input.focus();
+      input.setSelectionRange(input.value.length, input.value.length);
+      break;
     case "KeyI":
       e.preventDefault();
       input.focus();
       input.select();
       break;
 
-    case "KeyJ":
-      scrollDown();
+    case "KeyT":
       e.preventDefault();
+      if (window.location.search) {
+        loadPage(`/t${window.location.search}`);
+      }
+      break;
+    case "KeyR":
+      e.preventDefault();
+      if (window.location.search) {
+        loadPage(`/r${window.location.search}`);
+      }
+      break;
+
+    case "KeyF":
+      e.preventDefault();
+      loadPage("/roots");
+      break;
+    case "KeyH":
+      e.preventDefault();
+      loadPage("/");
+      break;
+
+    case "KeyJ":
+      e.preventDefault();
+      scrollDown();
       break;
     case "KeyK":
-      scrollUp();
       e.preventDefault();
+      scrollUp();
       break;
   }
 })

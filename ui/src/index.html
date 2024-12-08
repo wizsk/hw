@@ -48,7 +48,7 @@
                 value="{{.PreInVal}}" required {{if not .IsRes}}autofocus{{end}} />
 
             <div id="inputSuggestions"
-                class="absolute right-0 bottom-16 md:bottom-auto md:top-20 bg-slate-200 border border-blue-400 flex flex-col-reverse md:flex-col text-right w-[45vw] md:w-72 divide-y divide-slate-300 hidden">
+                class="absolute right-0 bottom-16 md:bottom-auto md:top-20 bg-blue-50 border border-blue-400 flex flex-col-reverse md:flex-col text-right w-[45vw] md:w-72 divide-y divide-slate-300 hidden">
             </div>
 
         </div>
@@ -61,15 +61,15 @@
     {{else if .IsRootPage}}
     <main class="pt-4 sm:pt-24 pb-24">{{template "roots.html" .}}</main>
     {{else}}
-    <main class="pt-8 sm:pt-24 mx-6 md:mx-12 text-gray-800">
-        <section class="p-4">
+    <main class="pt-8 sm:pt-24 mx-4 md:mx-12 text-gray-800">
+        <section class="md:p-4">
             <h1 class="text-3xl sm:text-4xl mb-8 text-blue-800">Hi there!</h1>
+            <!-- 
             <p class="mb-6">Here are some tips:</p>
-
-            <ol class="list-decimal list-inside space-y-3">
+            <ul class="space-y-3">
                 <li>
-                    Go to <a class="text-blue-800 hover:text-blue-800 transition duration-200" href="/roots">/roots</a>
-                    page to get details about roots
+                    <a class="text-blue-800 hover:text-blue-800 transition duration-200" href="/roots">/roots</a>
+                    verb family details.
                 </li>
                 <li>
                     The Magnifin icon is used for root search.
@@ -77,21 +77,89 @@
                 <li>
                     The other icon is used for searching the entire dictionary for matching phrases.
                 </li>
+                <li>Note: Every shourtcut will work on any keyboard (english or arabic)</li>
                 <li>
-                    Press <span class="text-blue-800">SHIFT + Enter</span> or <span class="text-blue-800">CTRL +
-                        Enter</span> for full text search.
+                    Press <span class="text-blue-800">ESCAPE</span> key to remove focous from the search input.
                 </li>
                 <li>
-                    Press <span class="text-blue-800">s</span> or <span class="text-blue-800">i</span> to focus on
-                    the search bar.
+                    Press <span class="text-blue-800">CTRL + Enter</span> for full text search.
                 </li>
                 <li>
-                    Press <span class="text-blue-800">c</span> to scroll up.
+                    Press <span class="text-blue-800">s</span> to focous on the search bar and select all the text
+                    inside.
                 </li>
                 <li>
-                    Press <span class="text-blue-800">k</span> to scroll down.
+                    Press <span class="text-blue-800">i</span> to focus on the search bar and move the cursor to end of
+                    text.
                 </li>
-            </ol>
+                <li>
+                    Press <span class="text-blue-800">r</span> and <span class="text-blue-800">t</span> althernate
+                    between root and text search while on the serach page.
+                </li>
+                <li>
+                    Press <span class="text-blue-800">f</span> to load <a
+                        class="text-blue-800 hover:text-blue-800 transition duration-200" href="/roots">/roots</a> page.
+                </li>
+                <li>
+                    Press <span class="text-blue-800">h</span> to load <a
+                        class="text-blue-800 hover:text-blue-800 transition duration-200" href="/">home</a> page.
+                </li>
+                <li>
+                    Press <span class="text-blue-800">j</span> to scroll down.
+                </li>
+                <li>
+                    Press <span class="text-blue-800">k</span> to scroll up.
+                </li>
+            </ul>-->
+            <h2 class="font-bold mb-4 text-gray-800">Keyboard Shortcuts & Search Info</h2>
+            <ul class="space-y-3 text-gray-700 leading-relaxed list-disc list-inside">
+                <li>
+                    <a class="text-blue-800 hover:text-blue-800 transition duration-200" href="/roots">/roots</a>
+                    verb family details.
+                </li>
+                <li>
+                    The Magnifin icon is used for root search.
+                </li>
+                <li>
+                    The other icon is used for searching the entire dictionary for matching phrases.
+                </li>
+                <li>Note: Every shortcut will work on any keyboard (English or Arabic).</li>
+                <li>
+                    Press <span class="text-blue-800">ESCAPE</span> key to remove focus from the search input.
+                </li>
+                <li>
+                    Press <span class="text-blue-800">CTRL + Enter</span> for full text search.
+                </li>
+                <li>
+                    Press <span class="text-blue-800">s</span> to focus on the search bar and select all the text
+                    inside.
+                </li>
+                <li>
+                    Press <span class="text-blue-800">i</span> to focus on the search bar and move the cursor to the
+                    end of
+                    text.
+                </li>
+                <li>
+                    Press <span class="text-blue-800">r</span> and <span class="text-blue-800">t</span> to alternate
+                    between root and text search while on the search page.
+                </li>
+                <li>
+                    Press <span class="text-blue-800">f</span> to load <a
+                        class="text-blue-800 hover:text-blue-800 transition duration-200" href="/roots">/roots</a>
+                    page.
+                </li>
+                <li>
+                    Press <span class="text-blue-800">h</span> to load <a
+                        class="text-blue-800 hover:text-blue-800 transition duration-200" href="/">home</a> page.
+                </li>
+                <li>
+                    Press <span class="text-blue-800">j</span> to scroll down.
+                </li>
+                <li>
+                    Press <span class="text-blue-800">k</span> to scroll up.
+                </li>
+            </ul>
+
         </section>
     </main>
     {{end}}
