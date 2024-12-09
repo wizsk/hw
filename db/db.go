@@ -32,7 +32,7 @@ type HEntry struct {
 type Entries []Entry
 type HEntries []HEntry
 
-// by id
+// by id 1, 2, 3, ...
 func (e Entries) sort() {
 	sort.Slice(e, func(i, j int) bool {
 		return i < j
@@ -112,27 +112,28 @@ func SearchByRoot(root string, lim int) Entries {
 	found := 0
 	res := Entries{}
 
-	// parent id
-	pid := int64(-1)
+	// parent ids
+	pids := []int64{}
 	for i := range len(dict) {
 		if dict[i].IsRoot && root == dict[i].Word {
-			pid = dict[i].Pid
+			pids = append(pids, dict[i].Pid)
 		}
 	}
 
-	if pid < 0 {
+	if len(pids) == 0 {
 		return nil
 	}
 
 	for i := range len(dict) {
 		e := &dict[i]
-		if e.Pid == pid {
-			res = append(res, *e)
-			found++
-		}
-
-		if found >= lim {
-			break
+		for _, pid := range pids {
+			if e.Pid == pid {
+				res = append(res, *e)
+				found++
+			}
+			if found >= lim {
+				break
+			}
 		}
 	}
 

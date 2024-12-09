@@ -15,9 +15,10 @@ import (
 )
 
 const (
-	debug    = true
+	// when commiting to repo always remove debug please :)
+	debug    = !true
 	progName = "hw"
-	version  = "1.0"
+	version  = "2.0 dev"
 
 	indexPageFile = "index.html"
 	// rootExplainPageFile = "roots.html"

@@ -24,16 +24,24 @@ document.addEventListener('scroll', (e) => {
 let inputTimeout;
 input.addEventListener('input', () => {
   clearTimeout(inputTimeout);
-
   inputTimeout = setTimeout(async () => {
-    const res = await fetch(`/sugg?w=${encodeURIComponent(input.value)}`, { method: "POST" });
-    if (res.ok) {
-      const data = await res.text();
-      if (data) {
-        inputSugg.innerHTML = data;
-        inputSugg.classList.remove("hidden");
+    if (input.value !== "") {
+      const url = `/sugg?w=${encodeURIComponent(input.value)}`;
+      console.log("req", url)
+      const res = await fetch(url, { method: "POST" });
+      if (res.ok) {
+        const data = await res.text();
+        if (data) {
+          inputSugg.innerHTML = data;
+          inputSugg.classList.remove("hidden");
+          return;
+        }
       }
     }
+    // the func would return if no error was encountered. the server should error incase no data
+    inputSugg.classList.add("hidden");
+    inputSugg.innerHTML = "";
+
   }, 400);
 })
 
