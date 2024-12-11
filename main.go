@@ -18,7 +18,7 @@ const (
 	// when commiting to repo always remove debug please :)
 	debug    = !true
 	progName = "hw"
-	version  = "2.0 dev"
+	version  = "1.5"
 
 	indexPageFile = "index.html"
 	// rootExplainPageFile = "roots.html"
