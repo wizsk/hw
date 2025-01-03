@@ -16,3 +16,8 @@ body {
 .direction-rtl {
     direction: rtl;
 }
+
+/* line height normal! */
+.ln {
+    line-height: normal !important;
+}
